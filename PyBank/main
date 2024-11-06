@@ -1,0 +1,65 @@
+import csv
+import os
+
+# Files to load and output (update with correct file paths)
+budget_data = os.path.join("PyBank", "resources", "budget_data.csv")  # Input file path
+analysis = os.path.join("PyBank", "analysis", "budget_analysis.txt")  # Output file path
+
+# Initialize variables
+total_months = 0
+net_total = 0
+previous_profit = None
+changes = []
+greatest_increase = {"month": "", "amount": 0}
+greatest_decrease = {"month": "", "amount": 0}
+
+# Open and read the CSV file
+# Open and read the csv
+with open(budget_data) as financial_data:
+    reader = csv.DictReader(financial_data)
+
+
+    for row in reader:
+        # Increment the total number of months
+        total_months += 1
+        
+        # Calculate the net total amount of "Profit/Losses"
+        current_profit = int(row["Profit/Losses"])
+        net_total += current_profit
+        
+        # Calculate the changes in "Profit/Losses"
+        if previous_profit is not None:
+            change = current_profit - previous_profit
+            changes.append(change)
+            
+            # Check for greatest increase and decrease in profits
+            if change > greatest_increase["amount"]:
+                greatest_increase["amount"] = change
+                greatest_increase["month"] = row["Date"]
+                
+            if change < greatest_decrease["amount"]:
+                greatest_decrease["amount"] = change
+                greatest_decrease["month"] = row["Date"]
+        
+        # Update the previous profit
+        previous_profit = current_profit
+
+# Calculate the average change in "Profit/Losses"
+average_change = sum(changes) / len(changes) if changes else 0
+
+# Print the results
+print(f'Total number of months: {total_months}')
+print(f'Net total amount of "Profit/Losses": ${net_total}')
+print(f'Average change in "Profit/Losses": ${average_change:.2f}')
+print(f'Greatest increase in profits: {greatest_increase["month"]} (${greatest_increase["amount"]})')
+print(f'Greatest decrease in profits: {greatest_decrease["month"]} (${greatest_decrease["amount"]})')
+
+# Write the results to a text file
+with open('financial_analysis.txt', mode='w') as file:
+    file.write(f'Total number of months: {total_months}\n')
+    file.write(f'Net total amount of "Profit/Losses": ${net_total}\n')
+    file.write(f'Average change in "Profit/Losses": ${average_change:.2f}\n')
+    file.write(f'Greatest increase in profits: {greatest_increase["month"]} (${greatest_increase["amount"]})\n')
+    file.write(f'Greatest decrease in profits: {greatest_decrease["month"]} (${greatest_decrease["amount"]})\n')
+
+print("Results have been written to financial_analysis.txt")
